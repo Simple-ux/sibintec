@@ -1,0 +1,38 @@
+version: '3'
+services:
+
+  app:
+    build: ./app
+    container_name: app
+    restart: always
+
+    healthcheck:
+      test: curl -sS http://127.0.0.1:8000 || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
+    volumes:
+      - ./app/:/app
+    labels:
+      "autoheal": "false"
+    ports:
+      - "8000:8000"
+  
+
+  tests: 
+    build: ./tests
+    container_name: tests
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+
+
+  healthcheck:
+    image: willfarrell/autoheal
+    container_name: autoheal
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    environment:
+      - AUTOHEAL_INTERVAL=5
+
+
